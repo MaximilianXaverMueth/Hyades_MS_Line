@@ -35,7 +35,7 @@ def main():
     #Set z-score for pm exclusion
     z=1
     #Choose GAIA CSV input file name
-    GAIAname = "Hyades-result.csv"
+    GAIAname = "Pleiades-result.csv"
     #SIMBADname = "pleiadesSim.csv"
 #----------SET USER PARAMETERS HERE---------
     gaia = pd.read_csv(GAIAname)
@@ -48,12 +48,15 @@ def main():
     #Get cluster members by removing pm and parallax z-std outliers
     gaia = getMems(gaia,z)
 
+    #Get Spectral Class test case for B
+    SpecB= gaia[gaia["spectraltype_esphs"]=="B"]
+
     #Apply Variable Extinction Method; correct for extinction and reddening
-    R, R_err, dist_ext, err_dist_ext = varExt(gaia)
-    gaia = ext_correct(gaia,R,R_err)
+    R, R_err, dist_ext, err_dist_ext = varExt(SpecB)
+    SpecB = ext_correct(gaia,R,R_err)
 
     #Make line of best fit(one big line we probably want multiple small)
-    a ,b = np.polyfit(gaia["(B-V)_intr"],gaia["V_rel", 1])
+    a ,b = np.polyfit(SpecB["(B-V)_intr"],SpecB["V_rel", 1])
 
     #Plot corrected Hyades CMD
     plt.figure()
@@ -61,7 +64,7 @@ def main():
     plt.title("Corrected CMD")
     plt.xlabel("(B-V)_intr [Mag]")
     plt.ylabel("V_rel [Mag]")
-    plt.scatter(gaia["(B-V)_intr"],gaia["V_rel"], color="red", label = "Cluster Stars")
+    plt.scatter(SpecB["(B-V)_intr"],SpecB["V_rel"], color="red", label = "Cluster Stars")
     plt.plot(x, a*x+b)
     plt.legend()
     plt.show()
