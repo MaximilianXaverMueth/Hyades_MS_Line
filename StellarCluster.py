@@ -37,9 +37,10 @@ def main():
     #Choose GAIA CSV input file name
     GAIAname = "Pleiades-result.csv"
     #SIMBADname = "pleiadesSim.csv"
+    Cepheidname= "Cepheid-table.odt"
 #----------SET USER PARAMETERS HERE---------
     gaia = pd.read_csv(GAIAname)
-
+    cepheid = pd.read_csv(Cepheidname, sep=" ")
     #Filtering gaia data for nonvalues and similar apparant magnitudes
     maxMag = 10
     gaia = gaia.dropna(subset=["phot_g_mean_mag","phot_bp_mean_mag","phot_rp_mean_mag","parallax"])
@@ -49,14 +50,14 @@ def main():
     gaia = getMems(gaia,z)
 
     #Get Spectral Class test case for B
-    SpecB= gaia[gaia["spectraltype_esphs"]=="B"]
+    #SpecB= gaia[gaia["spectraltype_esphs"]=="B"]
 
     #Apply Variable Extinction Method; correct for extinction and reddening
-    R, R_err, dist_ext, err_dist_ext = varExt(SpecB)
-    SpecB = ext_correct(gaia,R,R_err)
+    R, R_err, dist_ext, err_dist_ext = varExt(gaia)
+    gaia = ext_correct(gaia,R,R_err)
 
     #Make line of best fit(one big line we probably want multiple small)
-    a ,b = np.polyfit(SpecB["(B-V)_intr"],SpecB["V_rel", 1])
+    a ,b = np.polyfit(gaia["(B-V)_intr"],gaia["V_rel", 1])
 
     #Plot corrected Hyades CMD
     plt.figure()
@@ -64,13 +65,19 @@ def main():
     plt.title("Corrected CMD")
     plt.xlabel("(B-V)_intr [Mag]")
     plt.ylabel("V_rel [Mag]")
-    plt.scatter(SpecB["(B-V)_intr"],SpecB["V_rel"], color="red", label = "Cluster Stars")
+    plt.scatter(gaia["(B-V)_intr"],gaia["V_rel"], color="red", label = "Cluster Stars")
     plt.plot(x, a*x+b)
     plt.legend()
     plt.show()
 
    
-
+    #cephid distnce
+    #outside of the table cepheid apparent magnitude can be found many different ways and the code should be updated accordingly
+    AbsMag=[-1*(2.76(np.log10(cepheid["Period"]))-1.0)-4.16]
+    apparentMag = [cepheid["magWH"]]
+    arrayAbsMag = np.array(AbsMag)
+    arrayapparentMag = np.array(apparentMag)
+    dist = [10**((arrayapparentMag - arrayAbsMag +5)/5)]
 
 
 
