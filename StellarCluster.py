@@ -79,6 +79,14 @@ def main():
     arrayapparentMag = np.array(apparentMag)
     dist = [10**((arrayapparentMag - arrayAbsMag +5)/5)]
 
+    #make the cephid distance table
+    data= dist
+    collumns = ["Distance in pc"]
+    rows = [cepheid["Cepheid"]]
+    the_table= plt.table(cellText=data, rowLabels=rows, colLabels=collumns)
+    plt.show    
+   
+
 
 
 
