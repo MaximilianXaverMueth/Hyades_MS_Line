@@ -38,9 +38,11 @@ def main():
     GAIAname = "Pleiades-result.csv"
     #SIMBADname = "pleiadesSim.csv"
     Cepheidname= "Cepheid-table.odt"
+    GaiaCepheid = "Cepheid-result.csv"
 #----------SET USER PARAMETERS HERE---------
     gaia = pd.read_csv(GAIAname)
-    cepheid = pd.read_csv(Cepheidname, sep=" ")
+    cepheidT1 = pd.read_csv(Cepheidname, sep=" ")
+    cepheid= pd.read_csv(GaiaCepheid)
     #Filtering gaia data for nonvalues and similar apparant magnitudes
     maxMag = 10
     gaia = gaia.dropna(subset=["phot_g_mean_mag","phot_bp_mean_mag","phot_rp_mean_mag","parallax"])
@@ -50,13 +52,13 @@ def main():
     gaia = getMems(gaia,z)
 
     #Get Spectral Class test case for B
-    #SpecB= gaia[gaia["spectraltype_esphs"]=="B"]
+    SpecB= gaia[gaia["spectraltype_esphs"]=="B"]
 
     #Apply Variable Extinction Method; correct for extinction and reddening
     R, R_err, dist_ext, err_dist_ext = varExt(gaia)
     gaia = ext_correct(gaia,R,R_err)
 
-    #Make line of best fit(one big line we probably want multiple small)
+    #Make line of best fit
     a ,b = np.polyfit(gaia["(B-V)_intr"],gaia["V_rel", 1])
 
     #Plot corrected Hyades CMD
@@ -73,16 +75,21 @@ def main():
    
     #cephid distnce
     #outside of the table cepheid apparent magnitude can be found many different ways and the code should be updated accordingly
-    AbsMag=[-1*(2.76(np.log10(cepheid["Period"]))-1.0)-4.16]
-    apparentMag = [cepheid["magWH"]]
+    AbsMag=[-1*(2.76*(np.log10(cepheid["PF"]))-1.0)-4.16]
+    apparentMag = [cepheid["INT_AVERAGE_G"]]
     arrayAbsMag = np.array(AbsMag)
     arrayapparentMag = np.array(apparentMag)
     dist = [10**((arrayapparentMag - arrayAbsMag +5)/5)]
+    AbsMagError = 2.76*(np.log10(cepheid["PF_ERROR"]))
+    ApparentMagError= cepheid["INT_AVERAGE_G_ERROR"]
+    arrayAbsMagError = np.array(AbsMagError)
+    arrayApparentMagError = np.array(ApparentMagError)
+    DError= [10**((arrayApparentMagError- arrayAbsMagError)/5)]
 
-    #make the cephid distance table
+    #make the cephid distance table I have no clue how to express the error in the same table as the distance value I don't even know if this code will result in a tbale I'm just kinda guessing
     data= dist
-    collumns = ["Distance in pc"]
-    rows = [cepheid["Cepheid"]]
+    collumns = ["Distance in pc",]
+    rows = [cepheid["SOURCE_ID"]]
     the_table= plt.table(cellText=data, rowLabels=rows, colLabels=collumns)
     plt.show    
    
