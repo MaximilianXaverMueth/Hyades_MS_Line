@@ -1,0 +1,4 @@
+select
+	gs.SOURCE_ID, gs.PF, gs.PF_ERROR, gs.INT_AVERAGE_G, gs.INT_AVERAGE_G_ERROR
+from
+	gaiadr3.vari_cepheid as gs
